@@ -1,0 +1,28 @@
+{
+  "name": "SURVIV.2D - 2D 大逃殺・無雙進化版",
+  "short_name": "2D大逃殺",
+  "description": "單機 2D 俯視角大逃殺＋武器合成無雙進化，支援手機橫向雙搖桿、智慧自動瞄準與自動拾取，可完全離線遊玩。",
+  "lang": "zh-Hant",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#161a16",
+  "theme_color": "#80af49",
+  "categories": ["games", "action"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
