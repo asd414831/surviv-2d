@@ -1,4 +1,4 @@
-const CACHE_NAME = 'surviv-2d-pwa-v1.3';
+const CACHE_NAME = 'surviv-2d-pwa-v2.0';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       await Promise.allSettled(
@@ -17,7 +18,6 @@ self.addEventListener('install', (event) => {
           })
         )
       );
-      return self.skipWaiting();
     })
   );
 });
@@ -37,31 +37,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // Network-first with offline cache fallback (ensures updates apply immediately when online, and works 100% offline)
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => null);
-
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetchPromise.then((res) => {
-        if (res) return res;
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html') || caches.match('./surviv_2d.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return new Response('Offline', { status: 503, statusText: 'Offline' });
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() =>
+        caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
+        })
+      )
   );
 });
